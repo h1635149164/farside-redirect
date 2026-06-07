@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Farside Redirector",
+  "version": "0.1.0",
+  "description": "Automatically redirects privacy-invasive domains to farside.link frontends.",
+  "permissions": [
+    "declarativeNetRequest",
+    "storage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "action": {
+    "default_popup": "popup/popup.html"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "farside-redirector@yourdomain.local"
+    }
+  }
+}

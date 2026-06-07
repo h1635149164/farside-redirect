@@ -1,0 +1,62 @@
+{
+  "genius": {
+    "name": "Genius (Dumb)",
+    "domains": [
+      "genius.com"
+    ],
+    "enabled": true
+  },
+  "instagram": {
+    "name": "Instagram (Proxigram)",
+    "domains": [
+      "instagram.com"
+    ],
+    "enabled": false
+  },
+  "twitter": {
+    "name": "Twitter / X (Nitter)",
+    "domains": [
+      "twitter.com",
+      "x.com"
+    ],
+    "enabled": true
+  },
+  "youtube": {
+    "name": "YouTube (Invidious / Piped)",
+    "domains": [
+      "youtube.com",
+      "youtu.be",
+      "youtube-nocookie.com"
+    ],
+    "enabled": true
+  },
+  "reddit": {
+    "name": "Reddit (Libreddit / Teddit)",
+    "domains": [
+      "reddit.com",
+      "old.reddit.com"
+    ],
+    "enabled": true
+  },
+  "medium": {
+    "name": "Medium (Scribe)",
+    "domains": [
+      "medium.com"
+    ],
+    "enabled": true
+  },
+  "wikipedia": {
+    "name": "Wikipedia (WikiLess)",
+    "domains": [
+      "wikipedia.org"
+    ],
+    "enabled": true
+  },
+  "imdb": {
+    "name": "IMDb (Libremdb)",
+    "domains": [
+      "imdb.com"
+    ],
+    "enabled": true
+  }
+}
