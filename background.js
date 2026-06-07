@@ -48,24 +48,47 @@ const syncRules = async () => {
   console.log(`Farside Redirector: Synced ${rules.length} active rules.`);
 };
 
-// Initialize config on install or startup
+// Initialize config and handle migrations on install or startup
 const initializeConfig = async () => {
   const api = typeof browser !== "undefined" ? browser : chrome;
-  const data = await api.storage.local.get("services");
   
-  if (!data.services) {
-    console.log("Farside Redirector: Initializing default configuration...");
-    try {
-      const response = await fetch(api.runtime.getURL("services.json"));
-      const defaultServices = await response.json();
-      await api.storage.local.set({ services: defaultServices });
-      await syncRules();
-    } catch (e) {
-      console.error("Failed to load services.json", e);
+  try {
+    const response = await fetch(api.runtime.getURL("services.json"));
+    const freshServices = await response.json();
+    
+    const data = await api.storage.local.get("services");
+    
+    if (!data.services) {
+      console.log("Farside Redirector: Initializing default configuration...");
+      await api.storage.local.set({ services: freshServices });
+    } else {
+      console.log("Farside Redirector: Checking for configuration updates and migrations...");
+      const existingServices = data.services;
+      const updatedServices = {};
+
+      // 1. Add new services and update existing domains/metadata while keeping user toggles
+      for (const [key, freshService] of Object.entries(freshServices)) {
+        if (existingServices[key] !== undefined) {
+          // Key exists: Keep the user's custom 'enabled' preference, but update the matching domains and display name
+          updatedServices[key] = {
+            ...freshService,
+            enabled: existingServices[key].enabled
+          };
+        } else {
+          // New key added in update: Use the default config
+          updatedServices[key] = freshService;
+        }
+      }
+
+      // Any services in existingServices that are not in freshServices are naturally omitted (retired)
+      
+      await api.storage.local.set({ services: updatedServices });
     }
-  } else {
-    // Sync rules just to be sure they match storage on startup
+    
+    // Always sync active rules to declarativeNetRequest
     await syncRules();
+  } catch (e) {
+    console.error("Farside Redirector: Failed to initialize/migrate config:", e);
   }
 };
 
