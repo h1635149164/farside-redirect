@@ -31,6 +31,15 @@ The extension supports modular expansion. Supported services include:
 3. The background service worker compiles the enabled domains into `declarativeNetRequest` dynamic rules.
 4. When you navigate to a matching domain (e.g. typing `genius.com` in the address bar), the request is intercepted locally and redirected to `farside.link/https://genius.com/...` which then delegates you to an active public instance.
 
+## CI / Build Status
+| Browser | Dev | RC | Release |
+|:-------:|:-----------:|:---------:|:-------------------:|
+| 🦊 Firefox | [![Firefox · dev lint](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/h1635149164/85e98da7045e2e6b4c3b9ee22ddf1834/raw/firefox-dev-lint.json&logo=firefox-browser&label=Firefox)](https://github.com/h1635149164/farside-redirect/actions/workflows/build-firefox.yml) | [![Firefox · rc lint](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/h1635149164/85e98da7045e2e6b4c3b9ee22ddf1834/raw/firefox-rc-lint.json&logo=firefox-browser&label=Firefox)](https://github.com/h1635149164/farside-redirect/actions/workflows/build-firefox.yml) | [![Firefox · release lint](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/h1635149164/85e98da7045e2e6b4c3b9ee22ddf1834/raw/firefox-release-lint.json&logo=firefox-browser&label=Firefox)](https://github.com/h1635149164/farside-redirect/actions/workflows/release.yml) |
+| 🌐 Chrome | [![Chrome · dev lint](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/h1635149164/85e98da7045e2e6b4c3b9ee22ddf1834/raw/chrome-dev-lint.json&logo=googlechrome&label=Chrome)](https://github.com/h1635149164/farside-redirect/actions/workflows/build-chrome.yml) | [![Chrome · rc lint](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/h1635149164/85e98da7045e2e6b4c3b9ee22ddf1834/raw/chrome-rc-lint.json&logo=googlechrome&label=Chrome)](https://github.com/h1635149164/farside-redirect/actions/workflows/build-chrome.yml) | [![Chrome · release lint](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/h1635149164/85e98da7045e2e6b4c3b9ee22ddf1834/raw/chrome-release-lint.json&logo=googlechrome&label=Chrome)](https://github.com/h1635149164/farside-redirect/actions/workflows/build-chrome.yml) |
+
+---
+
+
 ## Local Development & Testing
 
 Since this extension targets local usage and development:
