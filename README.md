@@ -1,4 +1,7 @@
-# Farside Redirector
+<h1 align="center">
+  <img src="https://github.com/h1635149164/farside-redirect/blob/dev/src/icons/icon.svg" width="172" height="172" alt="Farside Redirector Logo"><br>
+  Farside Redirect
+</h1>
 
 A privacy-focused Firefox Web Extension (Manifest V3) that automatically intercepts and redirects requests for popular web services to their corresponding privacy-friendly frontend alternatives via the **farside.link** global redirector.
 
