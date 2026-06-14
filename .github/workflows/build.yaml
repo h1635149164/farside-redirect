@@ -125,10 +125,12 @@ jobs:
             COLOR="brightgreen";  MSG="${ERRORS}|${WARNINGS}|${NOTICES}"
           fi
 
+          VERSION=$(jq -r '.version' src/manifest.firefox.json)
           PAYLOAD=$(jq -n \
             --arg msg   "$MSG" \
             --arg color "$COLOR" \
-            '{schemaVersion: 1, label: "lint", message: $msg, color: $color}')
+            --arg ver   "v$VERSION" \
+            '{schemaVersion: 1, label: $ver, message: $msg, color: $color}')
 
           FILENAME="firefox-${BRANCH}-lint.json"
 
@@ -276,10 +278,12 @@ jobs:
             COLOR="brightgreen";  MSG="${ERRORS}|${WARNINGS}|${NOTICES}"
           fi
 
+          VERSION=$(jq -r '.version' src/manifest.chrome.json)
           PAYLOAD=$(jq -n \
             --arg msg   "$MSG" \
             --arg color "$COLOR" \
-            '{schemaVersion: 1, label: "lint", message: $msg, color: $color}')
+            --arg ver   "v$VERSION" \
+            '{schemaVersion: 1, label: $ver, message: $msg, color: $color}')
 
           FILENAME="chrome-${BRANCH}-lint.json"
 
