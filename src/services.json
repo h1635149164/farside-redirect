@@ -1,20 +1,28 @@
 {
   "genius": {
-    "name": "Genius (Dumb)",
+    "name": "Genius",
     "domains": [
       "genius.com"
     ],
     "enabled": true
   },
+  "imgur": {
+    "name": "Imgur",
+    "domains": [
+      "imgur.com"
+    ],
+    "enabled": true
+  }
+  ,
   "instagram": {
-    "name": "Instagram (Proxigram)",
+    "name": "Instagram",
     "domains": [
       "instagram.com"
     ],
     "enabled": false
   },
   "twitter": {
-    "name": "Twitter / X (Nitter)",
+    "name": "Xitter",
     "domains": [
       "twitter.com",
       "x.com"
@@ -22,7 +30,7 @@
     "enabled": true
   },
   "youtube": {
-    "name": "YouTube (Invidious / Piped)",
+    "name": "YouTube",
     "domains": [
       "youtube.com",
       "youtu.be",
@@ -31,7 +39,7 @@
     "enabled": true
   },
   "reddit": {
-    "name": "Reddit (Libreddit / Teddit)",
+    "name": "Reddit",
     "domains": [
       "reddit.com",
       "old.reddit.com"
@@ -39,23 +47,30 @@
     "enabled": true
   },
   "medium": {
-    "name": "Medium (Scribe)",
+    "name": "Medium",
     "domains": [
       "medium.com"
     ],
     "enabled": true
   },
   "wikipedia": {
-    "name": "Wikipedia (WikiLess)",
+    "name": "Wikipedia",
     "domains": [
       "wikipedia.org"
     ],
     "enabled": true
   },
   "imdb": {
-    "name": "IMDb (Libremdb)",
+    "name": "IMDb",
     "domains": [
       "imdb.com"
+    ],
+    "enabled": true
+  },
+  "fandom": {
+    "name": "Fandom",
+    "domains": [
+      "fandom.com"
     ],
     "enabled": true
   }
