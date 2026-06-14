@@ -1,0 +1,300 @@
+
+name: Build
+
+on: [push]
+
+jobs:
+  build-firefox:
+    name: Lint & Build (Firefox)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install web-ext
+        run: npm install --global web-ext
+
+      - name: Generate resized icons
+        run: |
+          if ! command -v ffmpeg &> /dev/null; then
+            echo "ffmpeg not found, installing..."
+            if command -v apt-get &> /dev/null; then
+              sudo apt-get update && sudo apt-get install -y ffmpeg
+            elif command -v apk &> /dev/null; then
+              apk add ffmpeg
+            elif command -v dnf &> /dev/null; then
+              sudo dnf install -y ffmpeg
+            else
+              echo "Unknown package manager. Cannot install ffmpeg."
+              exit 1
+            fi
+          fi
+          ffmpeg -y -i src/icons/icon-512.png -vf scale=128:128 src/icons/icon-128.png
+          ffmpeg -y -i src/icons/icon-512.png -vf scale=96:96 src/icons/icon-96.png
+          ffmpeg -y -i src/icons/icon-512.png -vf scale=72:72 src/icons/icon-72.png
+          ffmpeg -y -i src/icons/icon-512.png -vf scale=64:64 src/icons/icon-64.png
+          ffmpeg -y -i src/icons/icon-512.png -vf scale=32:32 src/icons/icon-32.png
+
+      - name: Setup Firefox Manifest
+        run: cp src/manifest.firefox.json src/manifest.json
+
+      - name: Lint extension
+        id: lint
+        run: |
+          set +e
+          LINT_JSON=$(npx web-ext lint \
+            --source-dir ./src \
+            --output     json \
+            --no-input   \
+            2>/dev/null)
+          LINT_EXIT=$?
+          set -e
+
+          ERRORS=$(echo   "$LINT_JSON" | jq -r '.summary.errors   // 0')
+          WARNINGS=$(echo "$LINT_JSON" | jq -r '.summary.warnings // 0')
+          NOTICES=$(echo  "$LINT_JSON" | jq -r '.summary.notices  // 0')
+
+          # Export for the badge step
+          echo "errors=$ERRORS"     >> "$GITHUB_OUTPUT"
+          echo "warnings=$WARNINGS" >> "$GITHUB_OUTPUT"
+          echo "notices=$NOTICES"   >> "$GITHUB_OUTPUT"
+
+          echo "────────────────────────────────────────────"
+          printf "  Lint │ %s errors  │  %s warnings  │  %s notices\n" \
+            "$ERRORS" "$WARNINGS" "$NOTICES"
+          echo "────────────────────────────────────────────"
+
+          # Propagate lint failure
+          [ "$LINT_EXIT" -eq 0 ] || exit 1
+
+      - name: Build extension
+        id: build
+        run: |
+          TMP=$(mktemp -d)
+          npx web-ext build \
+            --source-dir    ./src \
+            --artifacts-dir "$TMP" \
+            --overwrite-dest \
+            --no-input \
+            --ignore-files manifest.firefox.json manifest.chrome.json
+          mkdir -p ./dist
+          unzip "$TMP"/*.zip -d ./dist
+          rm -rf "$TMP"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: firefox-extension
+          path: dist/
+
+      - name: Clean up manifest
+        if: always()
+        run: rm -f src/manifest.json
+
+      - name: Update lint badge (Gist endpoint)
+        if: always()
+        env:
+          GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
+          GIST_ID:    ${{ secrets.GIST_ID }}
+        run: |
+          ERRORS="${{ steps.lint.outputs.errors }}"
+          WARNINGS="${{ steps.lint.outputs.warnings }}"
+          NOTICES="${{ steps.lint.outputs.notices }}"
+          BUILD_OUTCOME="${{ steps.build.outcome }}"
+          BRANCH="${GITHUB_REF_NAME:-unknown}"
+
+          # ── Determine badge colour & message ──
+          if   [ "$BUILD_OUTCOME" = "failure" ]; then
+            COLOR="critical";     MSG="build failed"
+          elif [ -z "$ERRORS" ]; then
+            COLOR="critical";     MSG="lint failed"
+          elif [ "$ERRORS"   -gt 0 ]; then
+            COLOR="critical";     MSG="${ERRORS}|${WARNINGS}|${NOTICES}"
+          elif [ "$WARNINGS" -gt 0 ]; then
+            COLOR="yellow";       MSG="${ERRORS}|${WARNINGS}|${NOTICES}"
+          elif [ "$NOTICES"  -gt 0 ]; then
+            COLOR="informational";MSG="${ERRORS}|${WARNINGS}|${NOTICES}"
+          else
+            COLOR="brightgreen";  MSG="${ERRORS}|${WARNINGS}|${NOTICES}"
+          fi
+
+          PAYLOAD=$(jq -n \
+            --arg msg   "$MSG" \
+            --arg color "$COLOR" \
+            '{schemaVersion: 1, label: "lint", message: $msg, color: $color}')
+
+          FILENAME="firefox-${BRANCH}-lint.json"
+
+          if [ -n "$GIST_TOKEN" ] && [ -n "$GIST_ID" ]; then
+            HTTP=$(curl -s -o /dev/null -w "%{http_code}" -X PATCH \
+              -H "Authorization: token $GIST_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              --data "$(jq -n \
+                --arg f "$FILENAME" \
+                --arg c "$PAYLOAD"  \
+                '{files: {($f): {content: $c}}}')" \
+              "https://api.github.com/gists/$GIST_ID")
+            echo "Gist update → HTTP $HTTP  (file: $FILENAME)"
+          else
+            echo "⚠️  GIST_TOKEN / GIST_ID not configured — badge update skipped"
+            echo "    (This is expected for offline / act runs)"
+            echo "    Badge payload: $PAYLOAD"
+          fi
+
+  build-chrome:
+    name: Lint & Build (Chrome)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install web-ext
+        run: npm install --global web-ext
+
+      - name: Generate resized icons
+        run: |
+          if ! command -v ffmpeg &> /dev/null; then
+            echo "ffmpeg not found, installing..."
+            if command -v apt-get &> /dev/null; then
+              sudo apt-get update && sudo apt-get install -y ffmpeg
+            elif command -v apk &> /dev/null; then
+              apk add ffmpeg
+            elif command -v dnf &> /dev/null; then
+              sudo dnf install -y ffmpeg
+            else
+              echo "Unknown package manager. Cannot install ffmpeg."
+              exit 1
+            fi
+          fi
+          ffmpeg -y -i src/icons/icon-512.png -vf scale=128:128 src/icons/icon-128.png
+          ffmpeg -y -i src/icons/icon-512.png -vf scale=96:96 src/icons/icon-96.png
+          ffmpeg -y -i src/icons/icon-512.png -vf scale=72:72 src/icons/icon-72.png
+          ffmpeg -y -i src/icons/icon-512.png -vf scale=64:64 src/icons/icon-64.png
+          ffmpeg -y -i src/icons/icon-512.png -vf scale=32:32 src/icons/icon-32.png
+
+      - name: Setup Chrome Manifest
+        run: cp src/manifest.chrome.json src/manifest.json
+
+      - name: Lint extension
+        id: lint
+        run: |
+          set +e
+          LINT_JSON=$(npx web-ext lint \
+            --source-dir ./src \
+            --output     json \
+            --no-input   \
+            2>/dev/null)
+          LINT_EXIT=$?
+          set -e
+
+          # Filter out Firefox-specific errors for Chrome build
+          ERRORS=$(echo "$LINT_JSON" | jq '[.errors[]? | select(.code != "BACKGROUND_SERVICE_WORKER_NOFALLBACK" and .code != "ADDON_ID_REQUIRED")] | length')
+          WARNINGS=$(echo "$LINT_JSON" | jq -r '.summary.warnings // 0')
+          NOTICES=$(echo  "$LINT_JSON" | jq -r '.summary.notices  // 0')
+
+          # Export for the badge step
+          echo "errors=$ERRORS"     >> "$GITHUB_OUTPUT"
+          echo "warnings=$WARNINGS" >> "$GITHUB_OUTPUT"
+          echo "notices=$NOTICES"   >> "$GITHUB_OUTPUT"
+
+          echo "────────────────────────────────────────────"
+          printf "  Lint │ %s errors  │  %s warnings  │  %s notices\n" \
+            "$ERRORS" "$WARNINGS" "$NOTICES"
+          echo "────────────────────────────────────────────"
+
+          # Print errors if any exist (excluding filtered ones)
+          if [ "$ERRORS" -gt 0 ]; then
+            echo "Filtered errors details:"
+            echo "$LINT_JSON" | jq '[.errors[]? | select(.code != "BACKGROUND_SERVICE_WORKER_NOFALLBACK" and .code != "ADDON_ID_REQUIRED")]'
+          fi
+
+          # Propagate lint failure if there are non-Firefox errors
+          [ "$ERRORS" -eq 0 ] || exit 1
+
+      - name: Build extension
+        id: build
+        run: |
+          TMP=$(mktemp -d)
+          npx web-ext build \
+            --source-dir    ./src \
+            --artifacts-dir "$TMP" \
+            --overwrite-dest \
+            --no-input \
+            --ignore-files manifest.firefox.json manifest.chrome.json
+          mkdir -p ./dist
+          unzip "$TMP"/*.zip -d ./dist
+          rm -rf "$TMP"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: chrome-extension
+          path: dist/
+
+      - name: Clean up manifest
+        if: always()
+        run: rm -f src/manifest.json
+
+      - name: Update lint badge (Gist endpoint)
+        if: always()
+        env:
+          GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
+          GIST_ID:    ${{ secrets.GIST_ID }}
+        run: |
+          ERRORS="${{ steps.lint.outputs.errors }}"
+          WARNINGS="${{ steps.lint.outputs.warnings }}"
+          NOTICES="${{ steps.lint.outputs.notices }}"
+          BUILD_OUTCOME="${{ steps.build.outcome }}"
+          BRANCH="${GITHUB_REF_NAME:-unknown}"
+
+          # ── Determine badge colour & message ──
+          if   [ "$BUILD_OUTCOME" = "failure" ]; then
+            COLOR="critical";     MSG="build failed"
+          elif [ -z "$ERRORS" ]; then
+            COLOR="critical";     MSG="lint failed"
+          elif [ "$ERRORS"   -gt 0 ]; then
+            COLOR="critical";     MSG="${ERRORS}|${WARNINGS}|${NOTICES}"
+          elif [ "$WARNINGS" -gt 0 ]; then
+            COLOR="yellow";       MSG="${ERRORS}|${WARNINGS}|${NOTICES}"
+          elif [ "$NOTICES"  -gt 0 ]; then
+            COLOR="informational";MSG="${ERRORS}|${WARNINGS}|${NOTICES}"
+          else
+            COLOR="brightgreen";  MSG="${ERRORS}|${WARNINGS}|${NOTICES}"
+          fi
+
+          PAYLOAD=$(jq -n \
+            --arg msg   "$MSG" \
+            --arg color "$COLOR" \
+            '{schemaVersion: 1, label: "lint", message: $msg, color: $color}')
+
+          FILENAME="chrome-${BRANCH}-lint.json"
+
+          if [ -n "$GIST_TOKEN" ] && [ -n "$GIST_ID" ]; then
+            HTTP=$(curl -s -o /dev/null -w "%{http_code}" -X PATCH \
+              -H "Authorization: token $GIST_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              --data "$(jq -n \
+                --arg f "$FILENAME" \
+                --arg c "$PAYLOAD"  \
+                '{files: {($f): {content: $c}}}')" \
+              "https://api.github.com/gists/$GIST_ID")
+            echo "Gist update → HTTP $HTTP  (file: $FILENAME)"
+          else
+            echo "⚠️  GIST_TOKEN / GIST_ID not configured — badge update skipped"
+            echo "    (This is expected for offline / act runs)"
+            echo "    Badge payload: $PAYLOAD"
+          fi
