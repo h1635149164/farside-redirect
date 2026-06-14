@@ -5,6 +5,12 @@
 
 A privacy-focused Firefox Web Extension (Manifest V3) that automatically intercepts and redirects requests for popular web services to their corresponding privacy-friendly frontend alternatives via the **farside.link** global redirector.
 
+<p align="center">
+<a href="https://addons.mozilla.org/en-US/firefox/addon/farside-redirector/">
+<img src="https://blog.mozilla.org/addons/files/2015/11/get-the-addon.png" width="172" height="60">
+</a>
+</p>
+
 ## Key Features
 
 - **Network-Level Interception**: Utilizes Firefox's Manifest V3 `declarativeNetRequest` API to redirect requests *before* the browser resolves DNS or initiates a connection to the target site. This ensures zero IP or query leaks to privacy-invasive platforms.
