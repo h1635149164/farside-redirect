@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - release
+    paths-ignore:
+      - '.github/**'
+      - 'CHANGES.md'
 
 permissions:
   contents: write
