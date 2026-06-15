@@ -1,9 +1,9 @@
-name: Sync RC to Dev
+name: Sync Release to Dev
 
 on:
   push:
     branches:
-      - rc
+      - release
 
 permissions:
   contents: write
@@ -22,8 +22,8 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Merge RC into Dev and Push
+      - name: Merge Release into Dev and Push
         run: |
           git checkout dev
-          git merge origin/rc -m "Merge ${{ github.sha }}@rc into dev"
+          git merge origin/release -m "Merge ${{ github.sha }}@release into dev"
           git push origin dev
