@@ -1,0 +1,29 @@
+name: Sync Release to Dev
+
+on:
+  push:
+    branches:
+      - release
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Merge Release into Dev and Push
+        run: |
+          git checkout dev
+          git merge origin/release -m "Merge branch 'release' into dev [skip ci]"
+          git push origin dev
