@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - rc
+    paths-ignore:
+      - '.github/**'
+      - 'CHANGES.md'
+      - 'GOALS.md'
 
 permissions:
   contents: write
