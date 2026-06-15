@@ -1,7 +1,21 @@
 
 name: Build
 
-on: [push]
+on:
+  push:
+    branches:
+      - release
+      - rc
+      - dev
+    paths:
+      - 'src/**'
+  pull_request:
+    branches:
+      - release
+      - rc
+      - dev
+    paths:
+      - 'src/**'
 
 jobs:
   build-firefox:
