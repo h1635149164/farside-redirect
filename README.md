@@ -11,13 +11,6 @@ A privacy-focused Firefox Web Extension (Manifest V3) that automatically interce
 </a>
 </p>
 
-## Key Features
-
-- **Network-Level Interception**: Utilizes Firefox's Manifest V3 `declarativeNetRequest` API to redirect requests *before* the browser resolves DNS or initiates a connection to the target site. This ensures zero IP or query leaks to privacy-invasive platforms.
-- **Native Extension Control**: Provides a clean, lightweight popup interface (inspired by Firefox's system style and uBlock Origin) to enable/disable redirections on a per-service basis.
-- **Subdomain Wildcard Support**: Automatically matches subdomains (e.g., `www.genius.com`, `amp.genius.com`) for configured services.
-- **Dynamic Configuration Sync**: Toggling a service instantly updates the active network routing rules in the background.
-
 ## Supported Services
 
 The extension supports modular expansion. Supported services include:
@@ -33,13 +26,6 @@ The extension supports modular expansion. Supported services include:
 
 *For the exact matching patterns and default states, see `services.json`.*
 
-## How it Works
-
-1. The registry of services is read from `services.json`.
-2. On initial installation, the active state for each service is written to `browser.storage.local`.
-3. The background service worker compiles the enabled domains into `declarativeNetRequest` dynamic rules.
-4. When you navigate to a matching domain (e.g. typing `genius.com` in the address bar), the request is intercepted locally and redirected to `farside.link/https://genius.com/...` which then delegates you to an active public instance.
-
 ## CI / Build Status
 <div align="center">
 
@@ -54,13 +40,13 @@ The extension supports modular expansion. Supported services include:
 
 ## Local Development & Testing
 
-Since this extension targets local usage and development:
+> Recommended 
+> 1. Set up ![act](https://github.com/nektos/act) (if on windows, set up WSL, and then `docker` in some linux distro, you might have an easier time running the whole thing than having to run ubuntu docker images under windows docker, `FedoraLinux-44` works just fine for me in WSL)
+> 2. Clone the repo `git clone https://github.com/h1635149164/farside-redirect.git`
+> 3. Run `act -j build-firefox --artifact-server-path ./artifact` or `act -j build-chrome --artifact-server-path ./artifact` depending on the target platform
+> 4. Retrieve the build from the artifacts folder structure.
 
-1. Clone or download the repository.
-2. Open Firefox and navigate to `about:debugging`.
-3. Click on **This Firefox**.
-4. Click **Load Temporary Add-on...** and select `manifest.json` from the extension's folder.
-5. The extension icon will appear in your toolbar.
+Alternatively you can merge the `manifest.common.json` with `manifest.<target-platform>.json` yourself and build the extension with `web-ext` and your desired combination of flags to build it. For inspiration I recommend consulting relevant sections of ![build.yaml](https://github.com/h1635149164/farside-redirect/blob/dev/.github/workflows/build.yaml).
 
 ## License
 
