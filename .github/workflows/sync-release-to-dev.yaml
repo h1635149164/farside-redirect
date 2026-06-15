@@ -25,5 +25,5 @@ jobs:
       - name: Merge Release into Dev and Push
         run: |
           git checkout dev
-          git merge origin/release -m "Merge branch 'release' into dev [skip ci]"
+          git merge origin/release -m "Merge ${{ github.sha }}@release into dev"
           git push origin dev

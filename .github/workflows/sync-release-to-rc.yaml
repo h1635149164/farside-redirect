@@ -25,5 +25,5 @@ jobs:
       - name: Merge Release into RC and Push
         run: |
           git checkout rc
-          git merge origin/release -m "Merge branch 'release' into rc [skip ci]"
+          git merge origin/release -m "Merge ${{ github.sha }}@release into rc"
           git push origin rc
