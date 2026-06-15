@@ -36,37 +36,11 @@ jobs:
         run: npm install --global web-ext
 
       - name: Setup Firefox Manifest
-        run: |
-          jq -s '.[0] * .[1]' src/manifest.common.json src/manifest.firefox.json > src/manifest.json
+        run: node scripts/utility/merge.js src/manifest.common.json src/manifest.firefox.json src/manifest.json
 
       - name: Lint extension
         id: lint
-        run: |
-          set +e
-          LINT_JSON=$(npx web-ext lint \
-            --source-dir ./src \
-            --output     json \
-            --no-input   \
-            2>/dev/null)
-          LINT_EXIT=$?
-          set -e
-
-          ERRORS=$(echo   "$LINT_JSON" | jq -r '.summary.errors   // 0')
-          WARNINGS=$(echo "$LINT_JSON" | jq -r '.summary.warnings // 0')
-          NOTICES=$(echo  "$LINT_JSON" | jq -r '.summary.notices  // 0')
-
-          # Export for the badge step
-          echo "errors=$ERRORS"     >> "$GITHUB_OUTPUT"
-          echo "warnings=$WARNINGS" >> "$GITHUB_OUTPUT"
-          echo "notices=$NOTICES"   >> "$GITHUB_OUTPUT"
-
-          echo "────────────────────────────────────────────"
-          printf "  Lint │ %s errors  │  %s warnings  │  %s notices\n" \
-            "$ERRORS" "$WARNINGS" "$NOTICES"
-          echo "────────────────────────────────────────────"
-
-          # Propagate lint failure
-          [ "$LINT_EXIT" -eq 0 ] || exit 1
+        run: node scripts/utility/lint.js firefox
 
       - name: Build extension
         id: build
@@ -162,44 +136,11 @@ jobs:
         run: npm install --global web-ext
 
       - name: Setup Chrome Manifest
-        run: |
-          jq -s '.[0] * .[1]' src/manifest.common.json src/manifest.chrome.json > src/manifest.json
+        run: node scripts/utility/merge.js src/manifest.common.json src/manifest.chrome.json src/manifest.json
 
       - name: Lint extension
         id: lint
-        run: |
-          set +e
-          LINT_JSON=$(npx web-ext lint \
-            --source-dir ./src \
-            --output     json \
-            --no-input   \
-            2>/dev/null)
-          LINT_EXIT=$?
-          set -e
-
-          # Filter out Firefox-specific errors for Chrome build
-          ERRORS=$(echo "$LINT_JSON" | jq '[.errors[]? | select(.code != "BACKGROUND_SERVICE_WORKER_NOFALLBACK" and .code != "ADDON_ID_REQUIRED")] | length')
-          WARNINGS=$(echo "$LINT_JSON" | jq -r '.summary.warnings // 0')
-          NOTICES=$(echo  "$LINT_JSON" | jq -r '.summary.notices  // 0')
-
-          # Export for the badge step
-          echo "errors=$ERRORS"     >> "$GITHUB_OUTPUT"
-          echo "warnings=$WARNINGS" >> "$GITHUB_OUTPUT"
-          echo "notices=$NOTICES"   >> "$GITHUB_OUTPUT"
-
-          echo "────────────────────────────────────────────"
-          printf "  Lint │ %s errors  │  %s warnings  │  %s notices\n" \
-            "$ERRORS" "$WARNINGS" "$NOTICES"
-          echo "────────────────────────────────────────────"
-
-          # Print errors if any exist (excluding filtered ones)
-          if [ "$ERRORS" -gt 0 ]; then
-            echo "Filtered errors details:"
-            echo "$LINT_JSON" | jq '[.errors[]? | select(.code != "BACKGROUND_SERVICE_WORKER_NOFALLBACK" and .code != "ADDON_ID_REQUIRED")]'
-          fi
-
-          # Propagate lint failure if there are non-Firefox errors
-          [ "$ERRORS" -eq 0 ] || exit 1
+        run: node scripts/utility/lint.js chrome
 
       - name: Build extension
         id: build

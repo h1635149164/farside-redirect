@@ -64,6 +64,11 @@ function processLint(data) {
     });
   }
 
+  if (process.env.GITHUB_OUTPUT) {
+    const fs = require('fs');
+    fs.appendFileSync(process.env.GITHUB_OUTPUT, `errors=${errors.length}\nwarnings=${warnings.length}\nnotices=${notices.length}\n`);
+  }
+
   if (errors.length > 0) {
     process.exit(1);
   } else {
