@@ -25,5 +25,5 @@ jobs:
       - name: Merge RC into Dev and Push
         run: |
           git checkout dev
-          git merge origin/rc -m "Merge branch 'rc' into dev [skip ci]"
+          git merge origin/rc -m "Merge ${{ github.sha }}@rc into dev"
           git push origin dev
