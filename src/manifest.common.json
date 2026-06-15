@@ -3,6 +3,7 @@
   "version": "0.2.0",
   "description": "Automatically redirects privacy-invasive domains to farside.link frontends.",
   "host_permissions": [
+    "*://farside.link/*",
     "<all_urls>"
   ],
   "action": {

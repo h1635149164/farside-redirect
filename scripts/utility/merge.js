@@ -26,6 +26,24 @@ try {
   const json1 = JSON.parse(fs.readFileSync(file1, 'utf8'));
   const json2 = JSON.parse(fs.readFileSync(file2, 'utf8'));
   const result = merge(json1, json2);
+
+  if (result.host_permissions && result.host_permissions.includes('<all_urls>')) {
+    const servicesPath = path.resolve(path.dirname(file1), 'services.json');
+    const services = JSON.parse(fs.readFileSync(servicesPath, 'utf8'));
+    const domains = [];
+    
+    for (const key of Object.keys(services)) {
+      for (const domain of (services[key].domains || [])) {
+        domains.push(`*://*.${domain}/*`);
+        domains.push(`*://${domain}/*`);
+      }
+    }
+    
+    result.host_permissions = result.host_permissions
+      .filter(p => p !== '<all_urls>')
+      .concat(domains);
+  }
+
   fs.writeFileSync(outFile, JSON.stringify(result, null, 2), 'utf8');
 } catch (err) {
   console.error("Error merging manifests:", err.message);
