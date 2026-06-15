@@ -46,7 +46,7 @@ The extension supports modular expansion. Supported services include:
 > 3. Run `act -j build-firefox --artifact-server-path ./artifact` or `act -j build-chrome --artifact-server-path ./artifact` depending on the target platform
 > 4. Retrieve the build from the artifacts folder structure.
 
-Alternatively you can merge the `manifest.common.json` with `manifest.<target-platform>.json` yourself and build the extension with `web-ext` and your desired combination of flags to build it. For inspiration I recommend consulting relevant sections of ![build.yaml](https://github.com/h1635149164/farside-redirect/blob/dev/.github/workflows/build.yaml).
+Alternatively you can use the `build.ps1` and `build.sh` scripts from the `scripts/` folder.  
 
 ## License
 
