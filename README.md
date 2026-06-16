@@ -48,6 +48,16 @@ The extension supports modular expansion. Supported services include:
 
 Alternatively you can use the `build.ps1` and `build.sh` scripts from the `scripts/` folder.  
 
+## Privacy Policy
+
+This extension is built with privacy in mind:
+- **No Data Collection**: It does not collect, track, or transmit any user data, browsing history, or telemetry.
+- **Local Execution**: All redirection logic is computed locally on your device via the native browser `declarativeNetRequest` API.
+- **No Ads or Tracking**: No third-party trackers or ads are integrated.
+
+For full details, read the [Privacy Policy](PRIVACY.md).
+
 ## License
 
 This project is licensed under the [GNU GPLv3 License](https://www.gnu.org/licenses/gpl-3.0.txt).
+
