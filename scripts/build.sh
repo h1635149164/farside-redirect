@@ -42,13 +42,17 @@ build_platform() {
     
     # 1. Clean up old manifest and dist directories
     rm -f src/manifest.json
+    rm -f src/popup/popup.css
     rm -rf "dist/$target"
     
-    # Ensure src/manifest.json cleanup on exit/error
-    trap 'rm -f src/manifest.json' EXIT
+    # Ensure cleanup on exit/error
+    trap 'rm -f src/manifest.json src/popup/popup.css' EXIT
     
     # 2. Merge manifests
     node scripts/utility/merge.js src/manifest.common.json "src/manifest.$target.json" src/manifest.json
+    
+    # Copy platform-specific css
+    cp "src/popup/popup.$target.css" "src/popup/popup.css"
     
     # 3. Lint extension
     node scripts/utility/lint.js "$target"
@@ -62,7 +66,7 @@ build_platform() {
       --artifacts-dir "$tmp_dir" \
       --overwrite-dest \
       --no-input \
-      --ignore-files manifest.firefox.json manifest.chrome.json manifest.common.json
+      --ignore-files manifest.firefox.json manifest.chrome.json manifest.common.json popup/popup.firefox.css popup/popup.chrome.css
       
     # 5. Copy zip next to target dir and extract
     local zip_file
@@ -85,7 +89,7 @@ build_platform() {
     
     # Clean up
     rm -rf "$tmp_dir"
-    rm -f src/manifest.json
+    rm -f src/manifest.json src/popup/popup.css
     trap - EXIT
     
     echo "=== Build $target complete: dist/$target ==="

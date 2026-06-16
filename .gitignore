@@ -21,3 +21,6 @@ Thumbs.db
 # Build files
 dist/
 artifacts/
+src/manifest.json
+src/popup/popup.css
+

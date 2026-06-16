@@ -1,0 +1,219 @@
+/* Farside Redirector Popup Styling (Chrome Theme) */
+:root {
+  --bg-color: #ffffff;
+  --text-color: #202124;
+  --text-muted: #5f6368;
+  --border-color: #e8eaed;
+  --toggle-track-off: #bdc1c6;
+  --toggle-thumb-off: #ffffff;
+  --toggle-track-on: #aecbfa;
+  --toggle-thumb-on: #1a73e8;
+  --hover-bg: #f1f3f4;
+  --focus-ring: #1a73e8;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #202124;
+    --text-color: #e8eaed;
+    --text-muted: #9aa0a6;
+    --border-color: #3c4043;
+    --toggle-track-off: #5f6368;
+    --toggle-thumb-off: #9aa0a6;
+    --toggle-track-on: rgba(138, 180, 248, 0.24);
+    --toggle-thumb-on: #8ab4f8;
+    --hover-bg: rgba(255, 255, 255, 0.04);
+    --focus-ring: #8ab4f8;
+  }
+}
+
+html {
+  min-height: 100%;
+  background-color: var(--bg-color);
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body {
+  min-width: 320px;
+  margin: 0;
+  padding: 0;
+  font-family: Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  overflow-x: hidden;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 16px;
+}
+
+header h1 {
+  font-size: 15px;
+  margin: 0 0 12px 0;
+  font-weight: 500;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+}
+
+main {
+  min-height: 150px;
+  max-height: 400px;
+  overflow-y: scroll;
+  scrollbar-width: none; /* Firefox fallback */
+}
+
+main::-webkit-scrollbar {
+  display: none; /* Hide scrollbar but keep scroll functionality */
+}
+
+.loading, .error {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-top: 20px;
+}
+
+.service-row {
+  padding: 8px 8px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-radius: 4px;
+}
+
+.service-row:last-child {
+  border-bottom: none;
+}
+
+.service-row:hover {
+  background-color: var(--hover-bg);
+}
+
+.service-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  gap: 12px;
+}
+
+/* Custom Toggle Switch styling - Chrome Material style */
+.service-toggle {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.slider {
+  position: relative;
+  display: inline-block;
+  width: 34px;
+  height: 16px;
+  background-color: var(--toggle-track-off);
+  border-radius: 8px;
+  transition: background-color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: -3px;
+  top: -2px;
+  background-color: var(--toggle-thumb-off);
+  border-radius: 50%;
+  box-shadow: 0 1px 3px 0 rgba(60, 64, 67, 0.3), 0 4px 8px 3px rgba(60, 64, 67, 0.15);
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.service-toggle:checked + .slider,
+.global-toggle:checked + .slider {
+  background-color: var(--toggle-track-on);
+}
+
+.service-toggle:focus-visible + .slider,
+.global-toggle:focus-visible + .slider {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 4px;
+}
+
+.service-toggle:checked + .slider:before,
+.global-toggle:checked + .slider:before {
+  transform: translateX(20px);
+  background-color: var(--toggle-thumb-on);
+}
+
+.service-title {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.service-domains {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-left: 46px; /* align with text, bypassing toggle width */
+}
+
+footer {
+  margin-top: 12px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 10px;
+}
+
+.footer-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#search-input {
+  flex-grow: 1;
+  padding: 6px 12px;
+  border: 1px solid transparent;
+  border-radius: 100px;
+  background-color: var(--hover-bg);
+  color: var(--text-color);
+  font-size: 13px;
+  font-family: inherit;
+  transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+#search-input:focus {
+  outline: none;
+  background-color: var(--bg-color);
+  border-color: var(--focus-ring);
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+}
+
+@media (prefers-color-scheme: dark) {
+  #search-input:focus {
+    box-shadow: 0 0 0 2px rgba(138, 180, 248, 0.24);
+  }
+}
+
+.global-toggle-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+}
+
+.global-toggle {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.global-disabled .service-row {
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
+}

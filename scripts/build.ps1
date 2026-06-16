@@ -25,17 +25,22 @@ function Build-Platform {
 
     # 1. Clean up old manifest and dist directories
     if (Test-Path src/manifest.json) { Remove-Item src/manifest.json -Force }
+    if (Test-Path src/popup/popup.css) { Remove-Item src/popup/popup.css -Force }
     if (Test-Path "dist/$Target") { Remove-Item "dist/$Target" -Recurse -Force }
 
     # Ensure clean up on exit/error
     $cleanup = {
         if (Test-Path src/manifest.json) { Remove-Item src/manifest.json -Force }
+        if (Test-Path src/popup/popup.css) { Remove-Item src/popup/popup.css -Force }
     }
 
     $tmpDir = $null
     try {
         # 2. Merge manifests
         node scripts/utility/merge.js src/manifest.common.json "src/manifest.$Target.json" src/manifest.json
+
+        # Copy platform-specific css
+        Copy-Item -Path "src/popup/popup.$Target.css" -Destination "src/popup/popup.css" -Force
 
         # 3. Lint extension
         node scripts/utility/lint.js "$Target"
@@ -49,7 +54,7 @@ function Build-Platform {
           --artifacts-dir "$tmpDir" `
           --overwrite-dest `
           --no-input `
-          --ignore-files manifest.firefox.json manifest.chrome.json manifest.common.json
+          --ignore-files manifest.firefox.json manifest.chrome.json manifest.common.json popup/popup.firefox.css popup/popup.chrome.css
 
         # 5. Copy zip to dist and extract
         $zipFiles = Get-ChildItem -Path $tmpDir -Filter *.zip

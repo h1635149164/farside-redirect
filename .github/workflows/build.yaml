@@ -38,6 +38,9 @@ jobs:
       - name: Setup Firefox Manifest
         run: node scripts/utility/merge.js src/manifest.common.json src/manifest.firefox.json src/manifest.json
 
+      - name: Setup Firefox CSS
+        run: cp src/popup/popup.firefox.css src/popup/popup.css
+
       - name: Lint extension
         id: lint
         run: node scripts/utility/lint.js firefox
@@ -51,7 +54,7 @@ jobs:
             --artifacts-dir "$TMP" \
             --overwrite-dest \
             --no-input \
-            --ignore-files manifest.firefox.json manifest.chrome.json manifest.common.json
+            --ignore-files manifest.firefox.json manifest.chrome.json manifest.common.json popup/popup.firefox.css popup/popup.chrome.css
           mkdir -p ./dist
           unzip "$TMP"/*.zip -d ./dist
           rm -rf "$TMP"
@@ -62,9 +65,9 @@ jobs:
           name: firefox-extension
           path: dist/
 
-      - name: Clean up manifest
+      - name: Clean up build files
         if: always()
-        run: rm -f src/manifest.json
+        run: rm -f src/manifest.json src/popup/popup.css
 
       - name: Update lint badge (Gist endpoint)
         if: always()
@@ -138,6 +141,9 @@ jobs:
       - name: Setup Chrome Manifest
         run: node scripts/utility/merge.js src/manifest.common.json src/manifest.chrome.json src/manifest.json
 
+      - name: Setup Chrome CSS
+        run: cp src/popup/popup.chrome.css src/popup/popup.css
+
       - name: Lint extension
         id: lint
         run: node scripts/utility/lint.js chrome
@@ -151,7 +157,7 @@ jobs:
             --artifacts-dir "$TMP" \
             --overwrite-dest \
             --no-input \
-            --ignore-files manifest.firefox.json manifest.chrome.json manifest.common.json
+            --ignore-files manifest.firefox.json manifest.chrome.json manifest.common.json popup/popup.firefox.css popup/popup.chrome.css
           mkdir -p ./dist
           unzip "$TMP"/*.zip -d ./dist
           rm -rf "$TMP"
@@ -162,9 +168,9 @@ jobs:
           name: chrome-extension
           path: dist/
 
-      - name: Clean up manifest
+      - name: Clean up build files
         if: always()
-        run: rm -f src/manifest.json
+        run: rm -f src/manifest.json src/popup/popup.css
 
       - name: Update lint badge (Gist endpoint)
         if: always()
