@@ -14,10 +14,17 @@
       <div id="services-list">
         <p class="loading">Loading configuration...</p>
       </div>
+      <p id="no-matches" class="error" style="display: none;">No services match your search.</p>
     </main>
 
     <footer>
-      <p class="status">Privacy routing is active</p>
+      <div class="footer-controls">
+        <input type="text" id="search-input" placeholder="Search services..." />
+        <label class="global-toggle-label" title="Enable/Disable all redirects">
+          <input type="checkbox" id="global-toggle" class="global-toggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
     </footer>
   </div>
   <script src="popup.js"></script>

@@ -16,3 +16,8 @@ Thumbs.db
 *.sln
 *.swp
 *~
+
+
+# Build files
+dist/
+artifacts/
